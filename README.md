@@ -3,6 +3,8 @@ Extension that simplifies `video` and `shorts` url sharing by removing unnecessa
 
 ![image](./image.png)
 
+[![firefox](https://img.shields.io/badge/Firefox-141e24.svg?&style=for-the-badge&logo=firefox-browser&logoColor=white&color=272727)](https://addons.mozilla.org/en-US/firefox/addon/youtube-url-share/)
+
 ## How to build
 ### My environment:
 
