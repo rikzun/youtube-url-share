@@ -39,7 +39,7 @@ export function App() {
 
                 <a
                     class="github-link"
-                    href="https://github.com/rikzun/youtube-share-extension"
+                    href="https://github.com/rikzun/youtube-url-share"
                     target="_blank"
                     children={
                         <img
