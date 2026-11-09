@@ -9,7 +9,9 @@ export function globalShareButtonListener(onClick: () => Promise<any>) {
 
         const path = button.querySelector(`path[d="${shareIconPath}"]`)
         if (!path) return
+
         e.preventDefault()
+        e.stopPropagation()
 
         onClick().then(() => {
             button.style.backgroundColor = "green"
@@ -20,7 +22,7 @@ export function globalShareButtonListener(onClick: () => Promise<any>) {
                 button.style.transition = "background-color 200ms ease-in-out"
             }, 500)
         })
-    })
+    }, { capture: true })
 }
 
 export function globalCopyEventListener(patterns: readonly string[], cb: (origin: string) => Promise<any>) {
