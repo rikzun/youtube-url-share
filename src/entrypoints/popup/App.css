@@ -20,14 +20,29 @@ body {
 
     display: flex;
     justify-content: space-between;
+    align-items: center;
+
+    user-select: none;
+}
+
+.github-link {
+    line-height: 0;
+    height: min-content;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.github-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .github-logo {
     width: 20px;
     height: 20px;
+    vertical-align: middle;
 }
 
-.container {
+.fields {
     display: flex;
     flex-direction: column;
     padding-inline: 16px;
@@ -35,19 +50,7 @@ body {
 }
 
 .field {
-    display: flex;
-    align-items: center;
     padding-bottom: 12px
-}
-
-.field > input {
-    margin-right: 16px;
-}
-
-.field > .error {
-    color: rgb(255, 0, 51);
-    font-size: 12px;
-    padding-left: 6px;
 }
 
 .field:last-child {

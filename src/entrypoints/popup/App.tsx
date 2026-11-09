@@ -1,113 +1,61 @@
 import "./App.css"
 import githubLogoUrl from "@/public/github.svg?url"
-import { createSignal } from "solid-js"
-import { Checkbox } from "@/components/Checkbox"
-import { Storage, type ErrorType } from "@/storage"
+import { Storage } from "@/storage"
+import { Field } from "@/components/Field"
+
+export interface Store {
+    keepTimestamp: boolean
+    keepList: boolean
+    keepShareFeature: boolean
+    replaceShare: boolean
+}
 
 export function App() {
-    const [state, setState] = createStore({
+    const store = createStore<Store>({
         keepTimestamp: true,
         keepList: false,
         keepShareFeature: false,
-        replaceShare: true,
-        errors: new Set<ErrorType>()
+        replaceShare: true
     })
 
     onMount(async() => {
-        const [
+        const keepTimestamp = await Storage.keepTimestamp.getValue()
+        const keepList = await Storage.keepList.getValue()
+        const keepShareFeature = await Storage.keepShareFeature.getValue()
+        const replaceShare = await Storage.replaceShare.getValue()
+
+        store[1]({
             keepTimestamp,
             keepList,
             keepShareFeature,
-            replaceShare,
-            errors
-        ] = await Promise.all([
-            Storage.keepTimestamp.getValue(),
-            Storage.keepList.getValue(),
-            Storage.keepShareFeature.getValue(),
-            Storage.replaceShare.getValue(),
-            Storage.errors.getValue()
-        ])
-
-        setState({
-            keepTimestamp,
-            keepList,
-            keepShareFeature,
-            replaceShare,
-            errors
-        })
-
-        Storage.errors.watch((v) => {
-            setState("errors", v)
+            replaceShare
         })
     })
-
-    const haseShareButtonError = () => state.errors.has("share-button")
 
     return (
         <>
             <div class="title">
-                Youtube Share
+                Youtube URL Share
 
-                <a href="https://github.com/rikzun/youtube-share-extension" target="_blank">
-                    <img
-                        class="github-logo"
-                        src={githubLogoUrl}
-                        alt="github logo"
-                    />
-                </a>
+                <a
+                    class="github-link"
+                    href="https://github.com/rikzun/youtube-share-extension"
+                    target="_blank"
+                    children={
+                        <img
+                            class="github-logo"
+                            src={githubLogoUrl}
+                            alt="github logo"
+                        />
+                    }
+                />
             </div>
 
-            <div class="container">
-                <div class="field">
-                    <Checkbox
-                        checked={state.keepTimestamp}
-                        onChange={(v) => {
-                            setState("keepTimestamp", v)
-                            Storage.keepTimestamp.setValue(v)
-                        }}
-                    />
-                    
-                    <span>Keep Timestamp</span>
-                </div>
-
-                <div class="field">
-                    <Checkbox
-                        checked={state.keepList}
-                        onChange={(v) => {
-                            setState("keepList", v)
-                            Storage.keepList.setValue(v)
-                        }}
-                    />
-                    
-                    <span>Keep List</span>
-                </div>
-
-                <div class="field">
-                    <Checkbox
-                        checked={state.keepShareFeature}
-                        onChange={(v) => {
-                            setState("keepShareFeature", v)
-                            Storage.keepShareFeature.setValue(v)
-                        }}
-                    />
-                    
-                    <span>Keep Share Feature</span>
-                </div>
-
-                <div class="field">
-                    <Checkbox
-                        checked={state.replaceShare}
-                        onChange={(v) => {
-                            setState("replaceShare", v)
-                            Storage.replaceShare.setValue(v)
-                        }}
-                    />
-
-                    <span>Replace Share button</span>
-                    <Show when={haseShareButtonError()}>
-                        <div class="error">(broken)</div>
-                    </Show>
-                </div>
+            <div class="fields">
+                <Field label="Keep Timestamp"       key="keepTimestamp"    store={store} />
+                <Field label="Keep List"            key="keepList"         store={store} />
+                <Field label="Keep Share Feature"   key="keepShareFeature" store={store} />
+                <Field label="Replace Share button" key="replaceShare"     store={store} />
             </div>
         </>
     )

@@ -1,5 +1,5 @@
 import { Storage } from "@/storage"
-import { ShareButton } from "@/utils"
+import { globalCopyEventListener, globalShareButtonListener } from "@/global"
 
 const FINAL_URL = "https://youtu.be/"
 
@@ -10,7 +10,7 @@ const COPY_PATTERNS_START = [
     "https://youtube.com/"
 ] as const
 
-async function copyLink(origin: string | null) {
+async function copyLink(origin: string | null = null) {
     const keepTimestamp = await Storage.keepTimestamp.getValue()
     const keepList = await Storage.keepList.getValue()
 
@@ -23,10 +23,6 @@ async function copyLink(origin: string | null) {
     if (!id) {
         const parts = url.pathname.split("/")
         id = parts[parts.length - 1] ?? null
-    }
-
-    if (!id) {
-        throw Error("can't get id")
     }
 
     const final = new URL(FINAL_URL + id)
@@ -58,61 +54,12 @@ export default defineContentScript({
     ],
     
     main: () => {
-        Storage.replaceShare.getValue().then((replaceShareButton) => {
-            if (!replaceShareButton) return
+        Storage.replaceShare.getValue().then((replace) => {
+            if (!replace) return
 
-            function initShareButton() {
-                let findShareButtonAttempts = 0
-
-                const intervalID = setInterval(() => {
-                    try {
-                        const shareButtonRoots = document.querySelectorAll("#top-level-buttons-computed > *:last-child")
-                        
-                        findShareButtonAttempts += 1
-                        if (findShareButtonAttempts > 50) {
-                            clearInterval(intervalID)
-                            throw Error()
-                        }
-
-                        if (!shareButtonRoots.length) return
-                        if (findShareButtonAttempts < 10) return
-                        clearInterval(intervalID)
-
-                        console.log(findShareButtonAttempts, shareButtonRoots)
-
-                        shareButtonRoots.forEach((root) => {
-                            console.log(root)
-                            const shareButton = new ShareButton(root)
-                            if (!shareButton.isPresent()) throw Error()
-
-                            shareButton.setClick(() => {
-                                copyLink(null)
-                                    .then(() => shareButton.resolve())
-                                    .catch(() => shareButton.reject())
-                            })
-                        })
-                    } catch(e) {
-                        Storage.errors.getValue().then((errors) => {
-                            Storage.errors.setValue(errors.add("share-button"))
-                        })
-                    }
-                }, 50)
-            }
-
-            document.addEventListener("yt-navigate-finish", () => {
-                initShareButton()
-            })
+            globalShareButtonListener(copyLink)
         })
 
-        document.addEventListener("copy", (e) => {
-            const value = window.getSelection()?.toString()
-            if (!value) return
-
-            const matches = COPY_PATTERNS_START.some((v) => value.startsWith(v))
-            if (!matches) return
-
-            e.preventDefault()
-            copyLink(value)
-        })
+        globalCopyEventListener(COPY_PATTERNS_START, copyLink)
     }
 })

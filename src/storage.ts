@@ -1,4 +1,3 @@
-
 export namespace Storage {
     export const keepTimestamp = storage.defineItem<boolean>(
         "sync:keepTimestamp",
@@ -19,12 +18,4 @@ export namespace Storage {
         "sync:replaceShare",
         { defaultValue: true }
     )
-
-    export const errors = storage.defineItem<Set<ErrorType>>(
-        "local:errors",
-        { defaultValue: new Set() }
-    )
 }
-
-export type ErrorType =
-    | "share-button"
